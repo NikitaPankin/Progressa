@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:8080"         # хост:контейнер (API будет доступен на http://localhost:5000)
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"  # браузер -> Vite (или nginx)
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_BASE_URL=http://backend/api
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
