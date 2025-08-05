@@ -2,6 +2,8 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
+ENV TZ=Europe/Vilnius
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -12,10 +14,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["backend/Backend/Backend.csproj", "backend/Backend/"]
-RUN dotnet restore "./backend/Backend/Backend.csproj"
+COPY ["backend/Backend.csproj", "backend/"]
+RUN dotnet restore "./backend/Backend.csproj"
 COPY . .
-WORKDIR "/src/backend/Backend"
+WORKDIR "/src/backend"
 RUN dotnet build "./Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
