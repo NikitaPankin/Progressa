@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Текущее время с сервера</h1>
+    <h1>Текущее время с сервера: </h1>
 
     <p v-if="loading" class="text-gray-500">Загрузка...</p>
     <p v-else-if="error" class="text-red-500">Ошибка: {{ error }}</p>
