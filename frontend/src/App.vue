@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import CurrentTime from './components/CurrentTime.vue'
+import AuthorizedLayout from './components/layouts/AuthorizedLayout.vue'
 </script>
 
 <template>
-  <CurrentTime />
+  <AuthorizedLayout>
+    <RouterView />
+  </AuthorizedLayout>
 </template>

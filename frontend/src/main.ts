@@ -1,11 +1,12 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import './assets/tailwind.css';
-import { router } from './router'
-import { createPinia } from 'pinia';
+import router from './router';
+import { createBootstrap } from 'bootstrap-vue-next';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
-const app = createApp(App)
-app.mount('#app')
-app.use(router)
-const pinia = createPinia()
-app.use(pinia)
+const app = createApp(App);
+    app.use(router);
+    app.use(createBootstrap());
+    app.mount('#app');
