@@ -1,3 +1,11 @@
+using Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.IdentityModel.Tokens;
+using Infrastructure;
+using Infrastructure.Models;
+using Application.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +26,28 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddInfrastructure();
+
+builder.Services.Configure<AuthenticationSettings>(builder.Configuration.GetSection("Authentication"));
+
+var securityKeysService = builder.Services.BuildServiceProvider().GetRequiredService<ISecurityKeyManager>();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = securityKeysService.Issuer,
+            ValidateAudience = true,
+            ValidAudience = securityKeysService.Audience,
+            ValidateLifetime = true,
+            IssuerSigningKey = securityKeysService.GetSymmetricSecurityKey(),
+            ValidateIssuerSigningKey = true,
+        };
+    });
+
 var app = builder.Build();
 
 app.UseCors("AllowFrontend");
@@ -30,7 +60,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
