@@ -5,32 +5,35 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Entities;
 using Application.Interfaces;
+using Infrastructure.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Services
 {
     public class UserRepository : IUserRepository
     {
-        public Task<User> GetUserByLoginAsync(string login)
+
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public UserRepository(UserManager<ApplicationUser> userManager)
         {
-            return Task.FromResult(new User
-            {
-                Login = login,
-                FullName = "Иван Иванович"
-            });
+            _userManager = userManager;
         }
 
-        public Task<User> GetUserByIdAsync(int id)
+        public async Task<ApplicationUser> GetUserByLoginAsync(string login)
         {
-            return Task.FromResult(new User
-            {
-                Login = "user",
-                FullName = "Пётр Петрович"
-            });
+            return await _userManager.FindByNameAsync(login);
         }
 
-        public Task<bool> CheckPasswordAsync(string login, string password)
+        public async Task<ApplicationUser> GetUserByIdAsync(string id)
         {
-            return Task.FromResult(password == "123");
+            return await _userManager.FindByIdAsync(id);
+        }
+
+        public async Task<bool> CheckPasswordAsync(string login, string password)
+        {
+            var user = await GetUserByLoginAsync(login);
+            return await _userManager.CheckPasswordAsync(user, password);
         }
     }
 }

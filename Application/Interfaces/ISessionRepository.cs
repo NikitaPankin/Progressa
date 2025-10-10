@@ -10,7 +10,7 @@ namespace Application.Interfaces
 {
     public interface ISessionRepository
     {
-        Task<(JwtSecurityToken accessToken, JwtSecurityToken refreshToken)> CreateAccessRefreshTokenAsync(User user);
-        Task<(JwtSecurityToken accessToken, JwtSecurityToken refreshToken)> ExtendSessionByRefreshTokenAsync(string refreshToken);
+        Task<(JwtSecurityToken accessToken, string refreshToken)> CreateAccessRefreshTokenAsync(ApplicationUser user);
+        Task<(JwtSecurityToken accessToken, string refreshToken)> ExtendSessionByRefreshTokenAsync(string refreshToken);
     }
 }

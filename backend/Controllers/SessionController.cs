@@ -4,6 +4,12 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Backend.Controllers
 {
+    public class LoginRequest
+    {
+        public string Login { get; set; }
+        public string Password { get; set; }
+    }
+
     [ApiController]
     [Route("api/[controller]")]
     public class SessionController : ControllerBase
@@ -18,14 +24,14 @@ namespace Backend.Controllers
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> Login([FromHeader] string login, [FromHeader] string password)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password)) return BadRequest("Login and password are required.");
+            if (string.IsNullOrWhiteSpace(request.Login) || string.IsNullOrWhiteSpace(request.Password)) return BadRequest("Login and password are required.");
 
-            var user = await _userRepository.GetUserByLoginAsync(login);
+            var user = await _userRepository.GetUserByLoginAsync(request.Login);
             if (user == null) return NotFound("User not found, please register.");
 
-            if (!await _userRepository.CheckPasswordAsync(login, password)) return Unauthorized("Invalid password.");
+            if (!await _userRepository.CheckPasswordAsync(request.Login, request.Password)) return Unauthorized("Invalid password.");
 
             var tokens = await _sessionRepository.CreateAccessRefreshTokenAsync(user);
 
@@ -33,14 +39,14 @@ namespace Backend.Controllers
             return Ok(new
             {
                 AccessToken = handler.WriteToken(tokens.accessToken),
-                RefreshToken = handler.WriteToken(tokens.refreshToken)
+                RefreshToken = tokens.refreshToken
             });
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromHeader] string refreshToken)
+        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
-            if (string.IsNullOrWhiteSpace(refreshToken)) BadRequest("Refresh token is required.");
+            if (string.IsNullOrWhiteSpace(refreshToken)) return BadRequest("Refresh token is required.");
 
             try
             {
@@ -50,7 +56,7 @@ namespace Backend.Controllers
                 return Ok(new
                 {
                     AccessToken = handler.WriteToken(newTokenPair.accessToken),
-                    RefreshToken = handler.WriteToken(newTokenPair.refreshToken)
+                    RefreshToken = newTokenPair.refreshToken
                 });
             }
             catch (Exception ex)
