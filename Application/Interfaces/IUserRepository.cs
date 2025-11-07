@@ -9,8 +9,12 @@ namespace Application.Interfaces
 {
     public interface IUserRepository
     {
-        Task<ApplicationUser> GetUserByLoginAsync(string login);
+        Task<ApplicationUser> GetUserByNameAsync(string name);
+        Task<ApplicationUser> GetUserByEmailAsync(string email);
         Task<ApplicationUser> GetUserByIdAsync(string id);
         Task<bool> CheckPasswordAsync(string login, string password);
+        Task<ApplicationUser> CreateUserAsync(string email, string name, string password);
+        Task<bool> ConfirmEmailAsync(ApplicationUser user, string token);
+        Task<string> GenerateEmailConfirmationTokenAsync(ApplicationUser user);
     }
 }

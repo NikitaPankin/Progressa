@@ -384,6 +384,10 @@ FodyWeavers.xsd
 !.vscode/extensions.json                                  
 *.code-workspace
 
+# Secrets and configuration
+backend/appsettings.Development.json
+backend/appsettings.json
+
 # Local History for Visual Studio Code
 .history/
 

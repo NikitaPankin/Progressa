@@ -1,13 +1,13 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 import jwtDecode from "jwt-decode";
-import type { TokenPair } from "../utils/tokenStorage";
+import type { TokenPair } from "../utils/tokenStorage.ts";
 import {
   getAccessToken,
   getRefreshToken,
   saveTokens,
   removeTokens,
-} from "../utils/tokenStorage";
+} from "../utils/tokenStorage.ts";
 
 interface JwtPayload {
   exp: number;
@@ -20,7 +20,7 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  if (config.url?.includes('/session/signin')) {
+  if (config.url?.includes('/session/signin') || config.url?.includes('/session/register')) {
     return config
   }
 
