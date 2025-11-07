@@ -1,9 +1,16 @@
 <template>
-  <div class="signin-form">
-    <form @submit.prevent="signin">
+  <div class="register-form">
+    <form @submit.prevent="register">
+
       <div class="form-group">
         <label for="email">Email:</label>
         <input type="email" id="email" v-model="email" placeholder="Enter email"/>
+        <p v-if="email && !isEmailValid" class="error-message">Invalid email format</p>
+      </div>
+    
+      <div class="form-group">
+        <label for="username">User name:</label>
+        <input type="text" id="username" v-model="username" placeholder="Enter name"/>
       </div>
 
       <div class="form-group">
@@ -18,13 +25,17 @@
         </ul>
       </div>
 
-      <button type="submit" :disabled="!isFormPrepared">Enter</button>
+      <div class="form-group">
+        <label for="repitPassword">Repit password:</label>
+        <input type="password" id="repitPassword" v-model="repitPassword" placeholder="Enter password"/>
+        <p v-if="repitPassword && !passwordRepitedCorrectly" class="error-message">Incorect password</p>
+      </div>
+
+      <button type="submit" :disabled="!canSubmit">Register</button>
 
       <p v-if="error" class="error-message">{{ error }}</p>
 
-      <button type="button" class="resend-btn" @click="resendEmail" > Resend confirmation email </button>
-
-      <p v-if="resendMessage" class="success-message">{{ resendMessage }}</p>
+      <RouterLink class="nav-link" to= "/signin">Already have an account?</RouterLink>
     </form>
   </div>
 </template>
@@ -37,29 +48,41 @@ import { saveTokens } from "../utils/tokenStorage";
 import { validatePassword } from "../utils/Validators/passwordValidator";
 
 const email = ref("");
+const username = ref("");
 const password = ref("");
+const repitPassword = ref("");
 const error = ref("");
-const resendMessage = ref("");
 const router = useRouter();
 
-const passwordValidation = computed(() => validatePassword(password.value));
+const isEmailValid = computed(() => /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email.value));
 
-const isFormPrepared = computed(() =>
-  email.value.trim() !== "" && passwordValidation.value.isValid
+const passwordValidation = computed(() => validatePassword(password.value));
+const passwordRepitedCorrectly = computed(() => password.value == repitPassword.value);
+
+const isPasswordValid = computed(() =>
+  passwordValidation.value.isValid &&
+  passwordRepitedCorrectly.value
 );
 
-async function signin() {
+const canSubmit = computed(() =>
+  username.value.trim() !== "" &&
+  isEmailValid.value &&
+  isPasswordValid.value
+);
+
+async function register() {
   try {
-    const response = await api.post("/session/signin", {
+    const response = await api.post("/session/register", {
       email: email.value,
-      password: password.value,
+      name : username.value,
+      password: password.value
     });
 
-    const { accessToken, refreshToken } = response.data;
-    saveTokens({ accessToken, refreshToken });
-
-    router.push("/dashboard");
-  } catch (err) {
+    if (response.data.requiresEmailConfirmation) {
+      alert("Check your email to confirm your account!");
+      router.push("/signin");
+    }
+    } catch (err) {
     if (err.response && err.response.data) {
       error.value = err.response.data;
     } else {
@@ -67,22 +90,14 @@ async function signin() {
     }
   }
 }
-
-async function resendEmail() {
-  try {
-    await api.post("/session/resend-confirmation", email.value, {
-      headers: { "Content-Type": "application/json" },
-    });
-    resendMessage.value = "Confirmation email sent successfully!";
-  } catch (err) {
-    if (email.value == "") resendMessage.value = "Please enter email.";
-    else resendMessage.value = "Failed to send email. Please try again.";
-  }
-}
 </script>
 
 <style scoped>
 .error-message {
   color: red;
+}
+
+.nav-link{
+    color: blue;
 }
 </style>

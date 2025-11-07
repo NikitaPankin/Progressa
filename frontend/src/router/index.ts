@@ -5,6 +5,7 @@ import ChallengesPage from '../pages/ChallengesPage.vue'
 import RemindersPage from '../pages/RemindersPage.vue'
 import SocialPage from '../pages/SocialPage.vue'
 import SigninPage from '../pages/SigninPage.vue'
+import RegisterPage from '../pages/RegisterPage.vue'
 import CurrentTimePage from '../pages/CurrentTimePage.vue'
 
 const routes = [
@@ -14,6 +15,7 @@ const routes = [
   { path: '/reminders', component: RemindersPage },
   { path: '/social', component: SocialPage },
   { path: '/signin', component: SigninPage },
+  { path: '/register', component: RegisterPage },
   { path: '/time', component: CurrentTimePage },
 ]
 
